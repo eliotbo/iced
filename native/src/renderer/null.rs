@@ -35,6 +35,13 @@ impl Renderer for Null {
         _background: impl Into<Background>,
     ) {
     }
+
+    fn make_custom_shader_quad(
+        &mut self,
+        _custom_shader_quad: renderer::CustomShaderQuad,
+        _background: impl Into<Background>,
+    ) {
+    }
 }
 
 impl text::Renderer for Null {

@@ -1,3 +1,4 @@
+use crate::custom_shader_quad;
 use crate::quad;
 use crate::text;
 use crate::triangle;
@@ -5,6 +6,7 @@ use crate::{Settings, Transformation};
 
 use iced_graphics::backend;
 use iced_graphics::font;
+use iced_graphics::layer;
 use iced_graphics::layer::Layer;
 use iced_graphics::{Primitive, Viewport};
 use iced_native::alignment;
@@ -19,6 +21,7 @@ use crate::image;
 /// [`iced`]: https://github.com/iced-rs/iced
 #[derive(Debug)]
 pub struct Backend {
+    custom_shader_quad_pipeline: custom_shader_quad::Pipeline,
     quad_pipeline: quad::Pipeline,
     text_pipeline: text::Pipeline,
     triangle_pipeline: triangle::Pipeline,
@@ -44,6 +47,10 @@ impl Backend {
         );
 
         let quad_pipeline = quad::Pipeline::new(device, format);
+
+        let custom_shader_quad_pipeline =
+            custom_shader_quad::Pipeline::new(device, format);
+
         let triangle_pipeline =
             triangle::Pipeline::new(device, format, settings.antialiasing);
 
@@ -51,6 +58,7 @@ impl Backend {
         let image_pipeline = image::Pipeline::new(device, format);
 
         Self {
+            custom_shader_quad_pipeline,
             quad_pipeline,
             text_pipeline,
             triangle_pipeline,
@@ -125,6 +133,26 @@ impl Backend {
                 staging_belt,
                 encoder,
                 &layer.quads,
+                transformation,
+                scale_factor,
+                bounds,
+                target,
+            );
+        }
+
+        if !layer.custom_shader_quads.is_empty() {
+            let serializable_instances: Vec<layer::CustomShaderQuad> = layer
+                .custom_shader_quads
+                .iter()
+                .map(|x| layer::CustomShaderQuad::from(x))
+                .collect::<Vec<layer::CustomShaderQuad>>();
+
+            self.custom_shader_quad_pipeline.draw(
+                device,
+                staging_belt,
+                encoder,
+                &layer.custom_shader_quads,
+                &serializable_instances,
                 transformation,
                 scale_factor,
                 bounds,

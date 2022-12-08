@@ -115,6 +115,28 @@ where
         });
     }
 
+    fn make_custom_shader_quad(
+        &mut self,
+        quad: renderer::CustomShaderQuad,
+        background: impl Into<Background>,
+    ) {
+        self.primitives.push(Primitive::CustomShaderQuad {
+            bounds: quad.bounds,
+            background: background.into(),
+            border_radius: quad.border_radius.into(),
+            border_width: quad.border_width,
+            border_color: quad.border_color,
+            mouse_position: Vector::new(
+                quad.mouse_position.x,
+                quad.mouse_position.y,
+            ),
+            mouse_click: Vector::new(quad.mouse_click.x, quad.mouse_click.y),
+            time: quad.time,
+            frame: quad.frame,
+            shader_code: quad.shader_code,
+        });
+    }
+
     fn clear(&mut self) {
         self.primitives.clear();
     }

@@ -200,7 +200,7 @@ impl Application for Example {
             pane_grid::Content::new(responsive(move |size| {
                 view_content(id, total_panes, pane.is_pinned, size)
             }))
-            .title_bar(title_bar)
+            // .title_bar(title_bar)
             .style(if is_focused {
                 style::pane_focused
             } else {

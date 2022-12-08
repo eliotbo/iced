@@ -43,6 +43,7 @@ pub mod window;
 
 mod backend;
 mod buffer;
+mod custom_shader_quad;
 mod quad;
 mod text;
 mod triangle;

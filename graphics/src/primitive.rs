@@ -48,6 +48,35 @@ pub enum Primitive {
         /// The border color of the quad
         border_color: Color,
     },
+    /// A custom shader quad primitive
+    CustomShaderQuad {
+        /// The bounds of the quad
+        bounds: Rectangle,
+        /// The background of the quad
+        background: Background,
+        /// The border radius of the quad
+        border_radius: [f32; 4],
+        /// The border width of the quad
+        border_width: f32,
+        /// The border color of the quad
+        border_color: Color,
+
+        /// mouse position
+        mouse_position: Vector<f32>,
+
+        /// Mouse click and release: [0.0] = no event, [1.0] = click, [-1.0] = release.
+        /// The first element is for left mouse click, the second for right mouse click.
+        mouse_click: Vector<f32>,
+
+        /// time in seconds since the start of the program.
+        time: f32,
+
+        /// frame number since the start of the program.
+        frame: u32,
+
+        /// Custom shader code.
+        shader_code: String,
+    },
     /// An image primitive
     Image {
         /// The handle of the image

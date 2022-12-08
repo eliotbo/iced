@@ -1,10 +1,12 @@
 //! Organize rendering primitives into a flattened list of layers.
+mod custom_shader_quad;
 mod image;
 mod quad;
 mod text;
 
 pub mod mesh;
 
+pub use custom_shader_quad::{CustomShaderQuad, CustomShaderQuadWithCode};
 pub use image::Image;
 pub use mesh::Mesh;
 pub use quad::Quad;
@@ -20,6 +22,9 @@ use crate::{
 pub struct Layer<'a> {
     /// The clipping bounds of the [`Layer`].
     pub bounds: Rectangle,
+
+    /// The custom shader quads of the [`Layer`].
+    pub custom_shader_quads: Vec<CustomShaderQuadWithCode>,
 
     /// The quads of the [`Layer`].
     pub quads: Vec<Quad>,
@@ -40,6 +45,7 @@ impl<'a> Layer<'a> {
         Self {
             bounds,
             quads: Vec::new(),
+            custom_shader_quads: Vec::new(),
             meshes: Vec::new(),
             text: Vec::new(),
             images: Vec::new(),
@@ -142,6 +148,43 @@ impl<'a> Layer<'a> {
                     vertical_alignment: *vertical_alignment,
                 });
             }
+
+            // THE CUSTOM CODE IS LOST HERE
+            Primitive::CustomShaderQuad {
+                bounds,
+                background,
+                border_radius,
+                border_width,
+                border_color,
+                mouse_position,
+                mouse_click,
+                time,
+                frame,
+                shader_code,
+            } => {
+                let layer = &mut layers[current_layer];
+
+                layer.custom_shader_quads.push(CustomShaderQuadWithCode {
+                    position: [
+                        bounds.x + translation.x,
+                        bounds.y + translation.y,
+                    ],
+                    size: [bounds.width, bounds.height],
+                    color: match background {
+                        Background::Color(color) => color.into_linear(),
+                    },
+                    border_radius: *border_radius,
+                    border_width: *border_width,
+                    border_color: border_color.into_linear(),
+
+                    mouse_position: [mouse_position.x, mouse_position.y],
+                    mouse_click: [mouse_click.x, mouse_click.y],
+                    time: *time,
+                    frame: *frame,
+                    shader_code: shader_code.clone(),
+                });
+            }
+
             Primitive::Quad {
                 bounds,
                 background,
