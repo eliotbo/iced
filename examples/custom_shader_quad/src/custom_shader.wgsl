@@ -8,31 +8,25 @@ struct Globals {
 struct VertexInput {
     @location(0) v_pos: vec2<f32>,
     @location(1) pos: vec2<f32>,
-    @location(2) scale: vec2<f32>,
-    @location(3) color: vec4<f32>,
-    @location(4) border_color: vec4<f32>,
-    @location(5) border_radius: vec4<f32>,
-    @location(6) mouse_position: vec2<f32>,
-    @location(7) mouse_click: vec2<f32>,
-    @location(8) time: f32,
-    @location(9) frame: u32,
-    @location(10) border_width: f32,
+    @location(2) size: vec2<f32>,
+    @location(3) bg_color: vec4<f32>,
+
+
+    @location(4) mouse_position: vec2<f32>,
+    @location(5) mouse_click: vec2<f32>,
+    @location(6) time: f32,
+    @location(7) frame: u32,
 }
 
 struct VertexOutput {
     @builtin(position) position: vec4<f32>,
-    @location(0) color: vec4<f32>,
-    @location(1) border_color: vec4<f32>,
-    @location(2) pos: vec2<f32>,
-    @location(3) scale: vec2<f32>,
-    @location(4) border_radius: vec4<f32>,
-    
-    @location(6) mouse_position: vec2<f32>,
-    @location(7) mouse_click: vec2<f32>,
-    @location(8) time: f32,
-    @location(9) frame: u32,
-
-    @location(10) border_width: f32,
+    @location(0) bg_color: vec4<f32>,
+    @location(1) pos: vec2<f32>,
+    @location(2) size: vec2<f32>,
+    @location(3) mouse_position: vec2<f32>,
+    @location(4) mouse_click: vec2<f32>,
+    @location(5) time: f32,
+    @location(6) frame: u32,
 }
 
 @vertex
@@ -40,15 +34,7 @@ fn vs_main(input: VertexInput) -> VertexOutput {
     var out: VertexOutput;
 
     var pos: vec2<f32> = input.pos * globals.scale;
-    var scale: vec2<f32> = input.scale * globals.scale;
-
-    var min_border_radius = min(input.scale.x, input.scale.y) * 0.5;
-    var border_radius: vec4<f32> = vec4<f32>(
-        min(input.border_radius.x, min_border_radius),
-        min(input.border_radius.y, min_border_radius),
-        min(input.border_radius.z, min_border_radius),
-        min(input.border_radius.w, min_border_radius)
-    );
+    var scale: vec2<f32> = input.size * globals.scale;
 
     var transform: mat4x4<f32> = mat4x4<f32>(
         vec4<f32>(scale.x + 1.0, 0.0, 0.0, 0.0),
@@ -57,12 +43,9 @@ fn vs_main(input: VertexInput) -> VertexOutput {
         vec4<f32>(pos - vec2<f32>(0.5, 0.5), 0.0, 1.0)
     );
 
-    out.color = input.color;
-    out.border_color = input.border_color;
+    out.bg_color = input.bg_color;
     out.pos = pos;
-    out.scale = scale;
-    out.border_radius = border_radius * globals.scale;
-    out.border_width = input.border_width * globals.scale;
+    out.size = scale;
     out.position = globals.transform * transform * vec4<f32>(input.v_pos, 0.0, 1.0);
 
     out.mouse_position = input.mouse_position;
@@ -73,102 +56,106 @@ fn vs_main(input: VertexInput) -> VertexOutput {
     return out;
 }
 
-fn distance_alg(
-    frag_coord: vec2<f32>,
-    position: vec2<f32>,
-    size: vec2<f32>,
-    radius: f32
-) -> f32 {
-    var inner_size: vec2<f32> = size - vec2<f32>(radius, radius) * 2.0;
-    var top_left: vec2<f32> = position + vec2<f32>(radius, radius);
-    var bottom_right: vec2<f32> = top_left + inner_size;
 
-    var top_left_distance: vec2<f32> = top_left - frag_coord;
-    var bottom_right_distance: vec2<f32> = frag_coord - bottom_right;
+/////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////
 
-    var dist: vec2<f32> = vec2<f32>(
-        max(max(top_left_distance.x, bottom_right_distance.x), 0.0),
-        max(max(top_left_distance.y, bottom_right_distance.y), 0.0)
-    );
+// 2d SDFs (surface distance functions)
+// see more at https://gist.github.com/munrocket/30e645d584b5300ee69295e54674b3e4
 
-    return sqrt(dist.x * dist.x + dist.y * dist.y);
+
+// MIT License. © 2020 Inigo Quilez, Munrocket
+// Permission is hereby granted, free of charge, to any person obtaining a copy of 
+// this software and associated documentation files (the "Software"), to deal in the 
+// Software without restriction, including without limitation the rights to use, copy, 
+// modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, 
+// and to permit persons to whom the Software is furnished to do so, subject to the 
+// following conditions:
+
+// The above copyright notice and this permission notice shall be included in all copies 
+// or substantial portions of the Software.
+
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
+// INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A 
+// PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF 
+// CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE 
+// OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+fn sdStar(p: vec2<f32>, r: f32, n: u32, m: f32) -> f32 {
+    let an = 3.141593 / f32(n);
+    let en = 3.141593 / m;
+    let acs = vec2<f32>(cos(an), sin(an));
+    let ecs = vec2<f32>(cos(en), sin(en));
+    let bn = (atan2(abs(p.x), p.y) % (2. * an)) - an;
+    var q: vec2<f32> = length(p) * vec2<f32>(cos(bn), abs(sin(bn)));
+    q = q - r * acs;
+    q = q + ecs * clamp(-dot(q, ecs), 0., r * acs.y / ecs.y);
+    return length(q) * sign(q.x);
 }
 
-// Based on the fragement position and the center of the quad, select one of the 4 radi.
-// Order matches CSS border radius attribute:
-// radi.x = top-left, radi.y = top-right, radi.z = bottom-right, radi.w = bottom-left
-fn select_border_radius(radi: vec4<f32>, position: vec2<f32>, center: vec2<f32>) -> f32 {
-    var rx = radi.x;
-    var ry = radi.y;
-    rx = select(radi.x, radi.y, position.x > center.x);
-    ry = select(radi.w, radi.z, position.x > center.x);
-    rx = select(rx, ry, position.y > center.y);
-    return rx;
+fn sdMoon(p: vec2<f32>, d: f32, ra: f32, rb: f32) -> f32 {
+    let q = vec2<f32>(p.x, abs(p.y));
+    let a = (ra * ra - rb * rb + d * d) / (2. * d);
+    let b = sqrt(max(ra * ra - a * a, 0.));
+    if d * (q.x * b - q.y * a) > d * d * max(b - q.y, 0.) { return length(q - vec2<f32>(a, b)); }
+    return max((length(q) - ra), -(length(q - vec2<f32>(d, 0.)) - rb));
 }
+
+fn sdCircle(p: vec2<f32>, r: f32) -> f32 {
+    return length(p) - r;
+}
+
+/////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////
 
 
 @fragment
 fn fs_main(
     input: VertexOutput
 ) -> @location(0) vec4<f32> {
-    var mixed_color: vec4<f32> = input.color;
+    let bg_color: vec4<f32> = input.bg_color;
 
-    var border_radius = select_border_radius(
-        input.border_radius,
-        input.position.xy,
-        (input.pos + input.scale * 0.5).xy
-    );
+    // normalize fragment position
+    let p = (input.position.xy - input.pos.xy - input.size.xy / 2.0) / input.size.xy;
 
-    if input.border_width > 0.0 {
-        var internal_border: f32 = max(border_radius - input.border_width, 0.0);
+    let d_star = sdStar(p, 0.25, 5u, 0.35);
 
-        var internal_distance: f32 = distance_alg(
-            input.position.xy,
-            input.pos + vec2<f32>(input.border_width, input.border_width),
-            input.scale - vec2<f32>(input.border_width * 2.0, input.border_width * 2.0),
-            internal_border
-        );
-
-        var border_mix: f32 = smoothstep(
-            max(internal_border - 0.5, 0.0),
-            internal_border + 0.5,
-            internal_distance
-        );
-
-        mixed_color = mix(input.color, input.border_color, vec4<f32>(border_mix, border_mix, border_mix, border_mix));
-    }
-
-    var dist: f32 = distance_alg(
-        vec2<f32>(input.position.x, input.position.y),
-        input.pos,
-        input.scale,
-        border_radius
-    );
-
-    var radius_alpha: f32 = 1.0 - smoothstep(
-        max(border_radius - 0.5, 0.0),
-        border_radius + 0.5,
-        dist
-    );
-
-    let ccc = vec4<f32>(mixed_color.x, mixed_color.y, mixed_color.z, mixed_color.w * radius_alpha);
-    let red = vec4<f32>(1.0, 0.0, 0.0, 1.0);
-    let violet = vec4<f32>(1.0, 0.0, 1.0, 1.0);
-    let orange = vec4<f32>(1.0, 0.5, 0.0, 1.0);
-
-    if input.mouse_click.x > 0.5 {
-        return violet;
-    }
+    // upon right mouse button press, change size and mouse transparency
+    var breathing = 0.15;
+    var mouse_transparency = 1.0;
     if input.mouse_click.y > 0.5 {
-        return orange;
+        breathing = 0.15 * sin(input.time * 10.0);
+        mouse_transparency = 0.5;
     }
 
-    if input.mouse_position.x > 300.0 {
-        let yellow = vec4<f32>(1.0, 1.0, 0.0, 1.0);
-        return yellow;
+    let s = 1.0 + breathing ;
+
+    let md = 0.3 * s;
+    let mra = 0.35 * s;
+    let mrb = 0.35 * s;
+
+    let d_moon = sdMoon(p, md, mra, mrb);
+
+    let d_mix = mix(d_star, d_moon, (sin(input.time * 2.0) + 1.0) / 2.0);
+    let d = smoothstep(0.0, 0.01, d_mix);
+
+    var shape_color = vec4<f32>(0.75, 0.5, 0.0, 1.0); // orange
+    var mouse_color = vec4<f32>(0.01, 0.2, 0.3, 1.0); // bluish
+
+    // upon left mouse button press, change color
+    if input.mouse_click.x > 0.5 {
+        shape_color = vec4<f32>(0.84, 0.05, 0.92, 1.); // purple
     }
 
+    var color = mix(bg_color, shape_color, 1. - d);
+
+    // Add circle around mouse position. 
+    // The units are in pixels here instead of normalized coordinates.
+    let d_mouse_circle = sdCircle(input.position.xy - input.mouse_position, 8.);
+    let mouse_contribution = mouse_transparency * (1.0 - smoothstep(0.0, 2.0, d_mouse_circle));
+    color = mix(color, mouse_color, mouse_contribution);
 
 
-    return red;
+    return color;
 }

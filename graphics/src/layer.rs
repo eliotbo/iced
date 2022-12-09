@@ -153,9 +153,6 @@ impl<'a> Layer<'a> {
             Primitive::CustomShaderQuad {
                 bounds,
                 background,
-                border_radius,
-                border_width,
-                border_color,
                 mouse_position,
                 mouse_click,
                 time,
@@ -173,9 +170,6 @@ impl<'a> Layer<'a> {
                     color: match background {
                         Background::Color(color) => color.into_linear(),
                     },
-                    border_radius: *border_radius,
-                    border_width: *border_width,
-                    border_color: border_color.into_linear(),
 
                     mouse_position: [mouse_position.x, mouse_position.y],
                     mouse_click: [mouse_click.x, mouse_click.y],

@@ -52,14 +52,9 @@ pub enum Primitive {
     CustomShaderQuad {
         /// The bounds of the quad
         bounds: Rectangle,
+
         /// The background of the quad
         background: Background,
-        /// The border radius of the quad
-        border_radius: [f32; 4],
-        /// The border width of the quad
-        border_width: f32,
-        /// The border color of the quad
-        border_color: Color,
 
         /// mouse position
         mouse_position: Vector<f32>,

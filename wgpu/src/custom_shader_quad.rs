@@ -8,7 +8,6 @@ use wgpu::util::DeviceExt;
 
 #[derive(Debug)]
 pub struct Pipeline {
-    // pipeline: wgpu::RenderPipeline,
     pipeline: Option<wgpu::RenderPipeline>,
     layout: wgpu::PipelineLayout,
     format: wgpu::TextureFormat,
@@ -61,8 +60,6 @@ impl Pipeline {
                 bind_group_layouts: &[&constant_layout],
             });
 
-        // pipeline.
-
         let vertices =
             device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
                 label: Some("iced_wgpu::custom shader quad vertex buffer"),
@@ -96,7 +93,6 @@ impl Pipeline {
         }
     }
 
-    // This function is called every frame from draw(..) below, using the shader
     pub fn make_pipeline(
         &self,
         device: &wgpu::Device,
@@ -133,13 +129,10 @@ impl Pipeline {
                             1 => Float32x2,
                             2 => Float32x2,
                             3 => Float32x4,
-                            4 => Float32x4,
-                            5 => Float32x4,
-                            6 => Float32x2,
-                            7 => Float32x2,
-                            8 => Float32,
-                            9 => Uint32,
-                            10 => Float32,
+                            4 => Float32x2,
+                            5 => Float32x2,
+                            6 => Float32,
+                            7 => Uint32,
                         ),
                     },
                 ],
@@ -186,7 +179,6 @@ impl Pipeline {
         encoder: &mut wgpu::CommandEncoder,
         instances: &[layer::CustomShaderQuadWithCode],
         serializable_instances: &[layer::CustomShaderQuad],
-        // instances: &Vec<layer::CustomShaderQuadWithCode>,
         transformation: Transformation,
         scale: f32,
         bounds: Rectangle<u32>,
@@ -211,8 +203,6 @@ impl Pipeline {
         let total = instances.len();
 
         while i < total {
-            // CHANGE CUSTOM SHADER QUAD PIPELINE HERE.
-            // Each custom shader quad instance has a different shader code
             let shader_code: &str = &instances[i].shader_code;
 
             let end = (i + MAX_INSTANCES).min(total);
@@ -250,8 +240,6 @@ impl Pipeline {
                         depth_stencil_attachment: None,
                     });
 
-                // make the pipeline with custom-shader-quad-specific shader code
-                //
                 self.pipeline = Some(self.make_pipeline(device, shader_code));
                 let pipeline = self.pipeline.as_ref().unwrap();
 

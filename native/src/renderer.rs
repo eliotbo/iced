@@ -72,27 +72,18 @@ pub struct CustomShaderQuad {
     /// The bounds of the [`Quad`].
     pub bounds: Rectangle,
 
-    /// The border radius of the [`Quad`].
-    pub border_radius: BorderRadius,
-
-    /// The border width of the [`Quad`].
-    pub border_width: f32,
-
-    /// The border color of the [`Quad`].
-    pub border_color: Color,
-
     /// Mouse position on the screen.
     pub mouse_position: Point,
 
     /// Mouse click and release: [0.0] = no event, [1.0] = click, [-1.0] = release.
     /// The first element is for left mouse click, the second for right mouse click.
-    pub mouse_click: Point,
+    pub mouse_click: Vector,
 
     /// time in seconds since the start of the program.
     pub time: f32,
 
     /// frame number since the start of the program.
-    pub frame: u32,
+    pub frame_number: u32,
 
     /// Custom shader code.
     pub shader_code: String,

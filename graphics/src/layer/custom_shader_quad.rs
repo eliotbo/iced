@@ -13,15 +13,6 @@ pub struct CustomShaderQuadWithCode {
     /// The color of the [`Quad`], in __linear RGB__.
     pub color: [f32; 4],
 
-    /// The border color of the [`Quad`], in __linear RGB__.
-    pub border_color: [f32; 4],
-
-    /// The border radius of the [`Quad`].
-    pub border_radius: [f32; 4],
-
-    /// The border width of the [`Quad`].
-    pub border_width: f32,
-
     /// Mouse position on the screen.
     pub mouse_position: [f32; 2],
 
@@ -45,13 +36,10 @@ impl From<&CustomShaderQuadWithCode> for CustomShaderQuad {
             position: custom_shader_quad.position,
             size: custom_shader_quad.size,
             color: custom_shader_quad.color,
-            border_color: custom_shader_quad.border_color,
-            border_radius: custom_shader_quad.border_radius,
             mouse_position: custom_shader_quad.mouse_position,
             mouse_click: custom_shader_quad.mouse_click,
             time: custom_shader_quad.time,
             frame: custom_shader_quad.frame,
-            border_width: custom_shader_quad.border_width,
         }
     }
 }
@@ -71,12 +59,6 @@ pub struct CustomShaderQuad {
     /// The color of the [`Quad`], in __linear RGB__.
     pub color: [f32; 4],
 
-    /// The border color of the [`Quad`], in __linear RGB__.
-    pub border_color: [f32; 4],
-
-    /// The border radius of the [`Quad`].
-    pub border_radius: [f32; 4],
-
     /// Mouse position on the screen.
     pub mouse_position: [f32; 2],
 
@@ -89,9 +71,6 @@ pub struct CustomShaderQuad {
 
     /// frame number since the start of the program.
     pub frame: u32,
-
-    /// The border width of the [`Quad`].
-    pub border_width: f32,
 }
 
 #[allow(unsafe_code)]
