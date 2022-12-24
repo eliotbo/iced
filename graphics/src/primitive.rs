@@ -1,4 +1,5 @@
 use iced_native::image;
+use iced_native::shader;
 use iced_native::svg;
 use iced_native::{Background, Color, Font, Rectangle, Size, Vector};
 
@@ -59,7 +60,6 @@ pub enum Primitive {
         /// mouse position
         mouse_position: Vector<f32>,
 
-        /// Mouse click and release: [0.0] = no event, [1.0] = click, [-1.0] = release.
         /// The first element is for left mouse click, the second for right mouse click.
         mouse_click: Vector<f32>,
 
@@ -70,7 +70,7 @@ pub enum Primitive {
         frame: u32,
 
         /// Custom shader code.
-        shader_code: String,
+        shader_handle: shader::Handle,
     },
     /// An image primitive
     Image {

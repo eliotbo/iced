@@ -1,5 +1,6 @@
 mod custom_shader_quad {
     use iced_native::layout::{self, Layout};
+
     use iced_native::widget::{self, Widget};
     use iced_native::{
         renderer, Color, Element, Length, Point, Rectangle, Size, Vector,
@@ -7,31 +8,31 @@ mod custom_shader_quad {
 
     use std::time::Duration;
 
-    // import the shader from the src directory
-    const SHADER: &str = include_str!("custom_shader.wgsl");
-
     #[derive(Default)]
-    pub struct CustomQuad {
+    pub struct StarMoon {
         size: f32,
         mouse_click: Vector,
-        duration_since_start: Duration,
+        duration_since_click: Duration,
+        shader_path: std::path::PathBuf,
     }
 
-    impl CustomQuad {
+    impl StarMoon {
         pub fn new(
             size: f32,
             mouse_click: Vector,
-            duration_since_start: Duration,
+            duration_since_click: Duration,
+            shader_path: std::path::PathBuf,
         ) -> Self {
             Self {
-                duration_since_start,
                 size,
                 mouse_click,
+                duration_since_click,
+                shader_path: shader_path,
             }
         }
     }
 
-    impl<Message, Renderer> Widget<Message, Renderer> for CustomQuad
+    impl<Message, Renderer> Widget<Message, Renderer> for StarMoon
     where
         Renderer: renderer::Renderer,
     {
@@ -64,10 +65,13 @@ mod custom_shader_quad {
             renderer.make_custom_shader_quad(
                 renderer::CustomShaderQuad {
                     bounds: layout.bounds(),
-                    shader_code: SHADER.to_string(),
+                    shader_path: self.shader_path.clone(),
+
+                    // The following fields have fixed names and types, but users can pass
+                    // in any data they want the shader to receive as long as the types match.
                     mouse_position: cursor_position,
                     mouse_click: self.mouse_click,
-                    time: self.duration_since_start.as_secs_f32(),
+                    time: self.duration_since_click.as_secs_f32(),
                     frame_number: 1,
                 },
                 // same color as background
@@ -80,11 +84,11 @@ mod custom_shader_quad {
         }
     }
 
-    impl<'a, Message, Renderer> From<CustomQuad> for Element<'a, Message, Renderer>
+    impl<'a, Message, Renderer> From<StarMoon> for Element<'a, Message, Renderer>
     where
         Renderer: renderer::Renderer,
     {
-        fn from(circle: CustomQuad) -> Self {
+        fn from(circle: StarMoon) -> Self {
             Self::new(circle)
         }
     }
@@ -98,19 +102,13 @@ use iced::{
 use iced_native::subscription;
 use std::time::{Duration, Instant};
 
+// import the shader from the src directory
+const SHADER_NAME: &str = "custom_shader.wgsl";
+
 pub fn main() -> iced::Result {
     Example::run(Settings {
-        antialiasing: true,
         ..Settings::default()
     })
-}
-
-#[derive(Debug, Clone, Copy, Default)]
-pub struct ModifierKeys {
-    pub shift: bool,
-    pub ctrl: bool,
-    pub alt: bool,
-    pub logo: bool,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -125,12 +123,27 @@ enum Message {
 }
 
 struct Example {
-    duration_since_start: Duration,
-
-    first_tick: Instant,
+    duration_since_last_click: Duration,
+    tick_at_last_click: Instant,
     mouse_click: Vector,
     #[allow(dead_code)]
-    custom_shader_quad: custom_shader_quad::CustomQuad,
+    custom_shader_quad: custom_shader_quad::StarMoon,
+}
+
+impl Example {
+    fn get_path() -> std::path::PathBuf {
+        let relative_shader_path: std::path::PathBuf = SHADER_NAME.into();
+
+        let relative_module_path = std::path::Path::new("examples")
+            .join("custom_shader_quad")
+            .join("src")
+            .join(relative_shader_path);
+
+        let absolute_path =
+            std::env::current_dir().unwrap().join(relative_module_path);
+
+        return absolute_path;
+    }
 }
 
 impl Application for Example {
@@ -142,16 +155,15 @@ impl Application for Example {
     fn new(_flags: ()) -> (Self, Command<Message>) {
         (
             Self {
-                duration_since_start: Duration::default(),
+                duration_since_last_click: Duration::default(),
+                tick_at_last_click: Instant::now(),
                 mouse_click: Vector::new(0.0, 0.0),
-
-                first_tick: Instant::now(),
-                custom_shader_quad: custom_shader_quad::CustomQuad::new(
+                custom_shader_quad: custom_shader_quad::StarMoon::new(
                     200.0,
                     Vector::default(),
                     Duration::default(),
+                    Example::get_path(),
                 ),
-                // modifier_keys: ModifierKeys::default(),
             },
             Command::none(),
         )
@@ -177,11 +189,11 @@ impl Application for Example {
 
             Message::LeftMousePressedGeneral => {
                 self.mouse_click.x = 1.0;
+                self.tick_at_last_click = Instant::now();
             }
 
             Message::Tick(now) => {
-                self.duration_since_start += now - self.first_tick;
-                self.first_tick = now;
+                self.duration_since_last_click = now - self.tick_at_last_click;
             }
 
             _ => (),
@@ -196,17 +208,17 @@ impl Application for Example {
 
         let content = column![
             instruction,
-            custom_shader_quad::CustomQuad::new(
+            custom_shader_quad::StarMoon::new(
                 200.0,
                 self.mouse_click,
-                self.duration_since_start,
+                self.duration_since_last_click,
+                Example::get_path(),
             ),
         ]
         .width(Length::Fill)
         .spacing(20)
         .align_items(Alignment::Center);
 
-        // container(scrollable(content))
         container(content)
             .width(Length::Fill)
             .height(Length::Fill)

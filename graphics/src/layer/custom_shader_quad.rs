@@ -3,7 +3,7 @@
 /// This type can be directly uploaded to GPU memory.
 #[derive(Debug, Clone)]
 #[repr(C)]
-pub struct CustomShaderQuadWithCode {
+pub struct CustomShaderQuadWithHandle {
     /// The position of the [`Quad`].
     pub position: [f32; 2],
 
@@ -27,11 +27,11 @@ pub struct CustomShaderQuadWithCode {
     pub frame: u32,
 
     /// Custom shader code.
-    pub shader_code: String,
+    pub shader_handle: iced_native::shader::Handle,
 }
 
-impl From<&CustomShaderQuadWithCode> for CustomShaderQuad {
-    fn from(custom_shader_quad: &CustomShaderQuadWithCode) -> Self {
+impl From<&CustomShaderQuadWithHandle> for CustomShaderQuad {
+    fn from(custom_shader_quad: &CustomShaderQuadWithHandle) -> Self {
         CustomShaderQuad {
             position: custom_shader_quad.position,
             size: custom_shader_quad.size,

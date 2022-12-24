@@ -6,7 +6,8 @@ mod text;
 
 pub mod mesh;
 
-pub use custom_shader_quad::{CustomShaderQuad, CustomShaderQuadWithCode};
+pub use custom_shader_quad::CustomShaderQuad;
+pub use custom_shader_quad::CustomShaderQuadWithHandle;
 pub use image::Image;
 pub use mesh::Mesh;
 pub use quad::Quad;
@@ -24,7 +25,7 @@ pub struct Layer<'a> {
     pub bounds: Rectangle,
 
     /// The custom shader quads of the [`Layer`].
-    pub custom_shader_quads: Vec<CustomShaderQuadWithCode>,
+    pub custom_shader_quads: Vec<CustomShaderQuadWithHandle>,
 
     /// The quads of the [`Layer`].
     pub quads: Vec<Quad>,
@@ -149,7 +150,6 @@ impl<'a> Layer<'a> {
                 });
             }
 
-            // THE CUSTOM CODE IS LOST HERE
             Primitive::CustomShaderQuad {
                 bounds,
                 background,
@@ -157,11 +157,11 @@ impl<'a> Layer<'a> {
                 mouse_click,
                 time,
                 frame,
-                shader_code,
+                shader_handle,
             } => {
                 let layer = &mut layers[current_layer];
 
-                layer.custom_shader_quads.push(CustomShaderQuadWithCode {
+                layer.custom_shader_quads.push(CustomShaderQuadWithHandle {
                     position: [
                         bounds.x + translation.x,
                         bounds.y + translation.y,
@@ -175,7 +175,7 @@ impl<'a> Layer<'a> {
                     mouse_click: [mouse_click.x, mouse_click.y],
                     time: *time,
                     frame: *frame,
-                    shader_code: shader_code.clone(),
+                    shader_handle: shader_handle.clone(),
                 });
             }
 

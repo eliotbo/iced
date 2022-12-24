@@ -75,7 +75,6 @@ pub struct CustomShaderQuad {
     /// Mouse position on the screen.
     pub mouse_position: Point,
 
-    /// Mouse click and release: [0.0] = no event, [1.0] = click, [-1.0] = release.
     /// The first element is for left mouse click, the second for right mouse click.
     pub mouse_click: Vector,
 
@@ -86,7 +85,7 @@ pub struct CustomShaderQuad {
     pub frame_number: u32,
 
     /// Custom shader code.
-    pub shader_code: String,
+    pub shader_path: std::path::PathBuf,
 }
 
 /// The border radi for the corners of a graphics primitive in the order:

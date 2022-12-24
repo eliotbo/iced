@@ -54,6 +54,7 @@ pub mod mouse;
 pub mod overlay;
 pub mod program;
 pub mod renderer;
+pub mod shader;
 pub mod subscription;
 pub mod svg;
 pub mod system;
