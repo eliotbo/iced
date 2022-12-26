@@ -157,7 +157,7 @@ impl<'a> Layer<'a> {
                 mouse_click,
                 time,
                 frame,
-                shader_handle,
+                handle,
             } => {
                 let layer = &mut layers[current_layer];
 
@@ -175,7 +175,7 @@ impl<'a> Layer<'a> {
                     mouse_click: [mouse_click.x, mouse_click.y],
                     time: *time,
                     frame: *frame,
-                    shader_handle: shader_handle.clone(),
+                    handle: handle.clone(),
                 });
             }
 

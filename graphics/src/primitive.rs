@@ -70,7 +70,7 @@ pub enum Primitive {
         frame: u32,
 
         /// Custom shader code.
-        shader_handle: shader::Handle,
+        handle: shader::Handle,
     },
     /// An image primitive
     Image {

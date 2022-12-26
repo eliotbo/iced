@@ -342,7 +342,7 @@ impl Pipeline {
         let total = instances.len();
 
         while i < total {
-            let shader_handle: Handle = instances[i].shader_handle.clone();
+            let shader_handle: Handle = instances[i].handle.clone();
 
             let has_new_shader_module =
                 self.insert_shader_module(device, &shader_handle);

@@ -1,8 +1,7 @@
 mod custom_shader_quad {
     use iced_native::{
         layout::{self, Layout},
-        renderer,
-        shader::ShaderContent,
+        renderer, shader,
         widget::{self, Widget},
         Color, Element, Length, Point, Rectangle, Size, Vector,
     };
@@ -185,7 +184,7 @@ fn fs_main(
         pub size: f32,
         pub mouse_click: Vector,
         pub duration_since_click: Duration,
-        pub shader_content: ShaderContent,
+        pub handle: shader::Handle,
     }
 
     impl<Message, Renderer> Widget<Message, Renderer> for StarMoon
@@ -221,8 +220,7 @@ fn fs_main(
             renderer.make_custom_shader_quad(
                 renderer::CustomShaderQuad {
                     bounds: layout.bounds(),
-                    shader_content: ShaderContent::Memory(SHADER),
-                    // shader_from_memory: SHADER,
+                    handle: self.handle.clone(),
 
                     // The following fields have fixed names and types, but users can pass
                     // in any data they want the shader to receive as long as the types match.
@@ -320,10 +318,9 @@ impl Application for Example {
                     size: 200.0,
                     mouse_click: Vector::default(),
                     duration_since_click: Duration::default(),
-                    // shader_content: Example::get_path(),
-                    shader_content: ShaderContent::Memory(
-                        custom_shader_quad::SHADER,
-                    ),
+                    // shader_content: Example::get_path().into(),
+                    handle: ShaderContent::Memory(custom_shader_quad::SHADER)
+                        .into(),
                 },
             },
             Command::none(),
@@ -374,9 +371,7 @@ impl Application for Example {
                 mouse_click: self.mouse_click,
                 duration_since_click: self.duration_since_last_click,
                 // shader_content: Example::get_path(),
-                shader_content: ShaderContent::Memory(
-                    custom_shader_quad::SHADER,
-                ),
+                handle: self.custom_shader_quad.handle.clone(),
             },
         ]
         .width(Length::Fill)

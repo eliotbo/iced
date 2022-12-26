@@ -84,8 +84,8 @@ pub struct CustomShaderQuad {
     /// frame number since the start of the program.
     pub frame_number: u32,
 
-    /// Custom shader code.
-    pub shader_content: crate::shader::ShaderContent,
+    /// Custom shader handle.
+    pub handle: crate::shader::Handle,
 }
 
 /// The border radi for the corners of a graphics primitive in the order:

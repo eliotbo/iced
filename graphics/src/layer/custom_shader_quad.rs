@@ -27,7 +27,7 @@ pub struct CustomShaderQuadWithHandle {
     pub frame: u32,
 
     /// Custom shader code.
-    pub shader_handle: iced_native::shader::Handle,
+    pub handle: iced_native::shader::Handle,
 }
 
 impl From<&CustomShaderQuadWithHandle> for CustomShaderQuad {

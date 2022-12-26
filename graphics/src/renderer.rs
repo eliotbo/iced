@@ -135,7 +135,7 @@ where
             ),
             time: custom_shader_quad.time,
             frame: custom_shader_quad.frame_number,
-            shader_handle: custom_shader_quad.shader_content.into(),
+            handle: custom_shader_quad.handle,
         });
     }
 
