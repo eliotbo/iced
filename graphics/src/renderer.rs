@@ -117,22 +117,25 @@ where
 
     fn make_custom_shader_quad(
         &mut self,
-        quad: renderer::CustomShaderQuad,
+        custom_shader_quad: renderer::CustomShaderQuad,
 
         background: impl Into<Background>,
     ) {
         self.primitives.push(Primitive::CustomShaderQuad {
-            bounds: quad.bounds,
+            bounds: custom_shader_quad.bounds,
             background: background.into(),
 
             mouse_position: Vector::new(
-                quad.mouse_position.x,
-                quad.mouse_position.y,
+                custom_shader_quad.mouse_position.x,
+                custom_shader_quad.mouse_position.y,
             ),
-            mouse_click: Vector::new(quad.mouse_click.x, quad.mouse_click.y),
-            time: quad.time,
-            frame: quad.frame_number,
-            shader_handle: quad.shader_path.into(),
+            mouse_click: Vector::new(
+                custom_shader_quad.mouse_click.x,
+                custom_shader_quad.mouse_click.y,
+            ),
+            time: custom_shader_quad.time,
+            frame: custom_shader_quad.frame_number,
+            shader_handle: custom_shader_quad.shader_content.into(),
         });
     }
 

@@ -9,8 +9,9 @@ use std::path::PathBuf;
 pub struct Handle {
     /// A unique identifier for the shader.
     pub id: u64,
-    /// The path to the shader code.
-    pub path: PathBuf,
+
+    /// Either the path to the shader code or a reference to the shader code in memory.
+    pub shader_content: ShaderContent,
 }
 
 impl PartialEq for Handle {
@@ -20,33 +21,32 @@ impl PartialEq for Handle {
 }
 
 impl Handle {
-    /// Creates an shader [`Handle`] pointing to a shader with the given path.
-    pub fn from_path<T: Into<PathBuf> + Clone>(path: T) -> Handle {
-        // Self::from_data(ShaderCode::Path(path.into()))
-
-        let shader_path = path.clone().into();
-
-        let mut hasher = Hasher::default();
-        shader_path.hash(&mut hasher);
-
-        Handle {
-            id: hasher.finish(),
-            path: path.into(),
-        }
-    }
-
     /// Returns the unique identifier of the [`Handle`].
     pub fn id(&self) -> u64 {
         self.id
     }
 }
 
-impl<T> From<T> for Handle
-where
-    T: Into<PathBuf>,
-{
-    fn from(path: T) -> Handle {
-        Handle::from_path(path.into())
+impl From<ShaderContent> for Handle {
+    fn from(shader_content: ShaderContent) -> Handle {
+        let mut hasher = Hasher::default();
+
+        match shader_content.clone() {
+            ShaderContent::Path(path) => {
+                path.hash(&mut hasher);
+                Handle {
+                    id: hasher.finish(),
+                    shader_content: shader_content,
+                }
+            }
+            ShaderContent::Memory(memory) => {
+                memory.hash(&mut hasher);
+                Handle {
+                    id: hasher.finish(),
+                    shader_content: shader_content,
+                }
+            }
+        }
     }
 }
 
@@ -58,15 +58,18 @@ impl Hash for Handle {
 
 /// Either a path to the shader code or the code itself.
 #[derive(Clone, Hash)]
-pub enum ShaderPath {
+pub enum ShaderContent {
     /// Shader in a file
     Path(PathBuf),
+    /// Shader in memory
+    Memory(&'static str),
 }
 
-impl std::fmt::Debug for ShaderPath {
+impl std::fmt::Debug for ShaderContent {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            ShaderPath::Path(path) => write!(f, "Path({:?})", path),
+            ShaderContent::Path(path) => write!(f, "Path({:?})", path),
+            ShaderContent::Memory(_) => write!(f, "shader in memory"),
         }
     }
 }

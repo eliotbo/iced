@@ -67,7 +67,7 @@ pub struct Quad {
 }
 
 /// A polygon with four sides.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone)]
 pub struct CustomShaderQuad {
     /// The bounds of the [`Quad`].
     pub bounds: Rectangle,
@@ -85,7 +85,7 @@ pub struct CustomShaderQuad {
     pub frame_number: u32,
 
     /// Custom shader code.
-    pub shader_path: std::path::PathBuf,
+    pub shader_content: crate::shader::ShaderContent,
 }
 
 /// The border radi for the corners of a graphics primitive in the order:

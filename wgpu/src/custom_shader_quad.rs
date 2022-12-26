@@ -4,7 +4,7 @@ use iced_graphics::layer;
 use iced_native::Rectangle;
 
 use bytemuck::{Pod, Zeroable};
-use iced_native::shader::Handle;
+use iced_native::shader::{Handle, ShaderContent};
 use std::collections::HashMap;
 use std::mem;
 use wgpu::util::DeviceExt;
@@ -250,32 +250,37 @@ impl Pipeline {
     }
 
     pub fn read_shader(&self, handle: &Handle) -> String {
-        use std::io::Read;
+        match handle.shader_content {
+            ShaderContent::Memory(ref shader_code) => shader_code.to_string(),
+            ShaderContent::Path(ref path) => {
+                use std::io::Read;
 
-        let mut bytes = Vec::new();
+                let mut bytes = Vec::new();
 
-        let raw_shader = match std::fs::File::open(&handle.path) {
-            Ok(mut file) => {
-                if let Ok(_) = file.read_to_end(&mut bytes) {
-                    if let Ok(shader_code) = String::from_utf8(bytes) {
-                        shader_code
-                    } else {
-                        panic!("Could not convert to string shader with path: {:?}", &handle.path);
+                let raw_shader = match std::fs::File::open(&path) {
+                    Ok(mut file) => {
+                        if let Ok(_) = file.read_to_end(&mut bytes) {
+                            if let Ok(shader_code) = String::from_utf8(bytes) {
+                                shader_code
+                            } else {
+                                panic!("Could not convert to string shader with path: {:?}", &path);
+                            }
+                        } else {
+                            panic!(
+                                "Could not read shader file with path: {:?}",
+                                &path
+                            );
+                        }
                     }
-                } else {
-                    panic!(
-                        "Could not read shader file with path: {:?}",
-                        &handle.path
-                    );
-                }
-            }
-            Err(_) => panic!(
-                "Could not find shader file with path: {:?}",
-                &handle.path
-            ),
-        };
+                    Err(_) => panic!(
+                        "Could not find shader file with path: {:?}",
+                        &path
+                    ),
+                };
 
-        return raw_shader;
+                raw_shader
+            }
+        }
     }
 
     // method that checks if the shader is in the ShaderCache, if not it adds it creates the ShaderModule and adds it
@@ -285,12 +290,6 @@ impl Pipeline {
         device: &wgpu::Device,
         shader_handle: &Handle,
     ) -> bool {
-        // -> &wgpu::ShaderModule {
-        // if let Some(shader_module) = self.shader_modules.get(&shader_handle.id)
-        // {
-        //     return shader_module;
-        // }
-
         if self.shader_modules_cache.contains_key(&shader_handle.id) {
             return false;
         }
@@ -310,13 +309,6 @@ impl Pipeline {
             .insert(shader_handle.id, shader_module);
 
         return true;
-
-        // let shader_mod =
-        //     self.shader_modules.get(&shader_handle.id).unwrap().clone();
-
-        // return shader_mod;
-
-        // return shader_module;
     }
 
     pub fn draw(
