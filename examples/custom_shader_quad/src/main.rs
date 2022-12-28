@@ -3,7 +3,7 @@ mod custom_shader_quad {
         layout::{self, Layout},
         renderer, shader,
         widget::{self, Widget},
-        Color, Element, Length, Point, Rectangle, Size, Vector,
+        Color, Element, Length, Point, Rectangle, Size,
     };
 
     use std::time::Duration;
@@ -24,7 +24,7 @@ struct VertexInput {
 
 
     @location(4) mouse_position: vec2<f32>,
-    @location(5) mouse_click: vec2<f32>,
+    @location(5) mouse_click: u32,
     @location(6) time: f32,
     @location(7) frame: u32, // unused in this example
 }
@@ -35,7 +35,7 @@ struct VertexOutput {
     @location(1) pos: vec2<f32>,
     @location(2) size: vec2<f32>,
     @location(3) mouse_position: vec2<f32>,
-    @location(4) mouse_click: vec2<f32>,
+    @location(4) mouse_click: u32,
     @location(5) time: f32,
     @location(6) frame: u32,
 }
@@ -132,7 +132,7 @@ fn fs_main(
 
     // upon right mouse button press, change shape size
     var breathing = 1.0;
-    if input.mouse_click.x > 0.5 {
+    if input.mouse_click == 1 {
         breathing = (1.0 + cos(input.time * 5.0)) / 2.0;
     }
 
@@ -158,7 +158,7 @@ fn fs_main(
     var mouse_color = vec4<f32>(0.01, 0.2, 0.3, 1.0); // bluish
 
     // upon left mouse button press, change border color
-    if input.mouse_click.y > 0.5 {
+    if input.mouse_click == 2 {
         shape_color = vec4<f32>(0.84, 0.05, 0.92, 1.); // purple
     }
 
@@ -167,7 +167,7 @@ fn fs_main(
     // Add circle around mouse position. 
     // The units are in pixels instead of normalized coordinates.
     var mouse_radius = 8.0;
-    if input.mouse_click.y > 0.5 || input.mouse_click.x > 0.5 {
+    if input.mouse_click == 1 || input.mouse_click == 2 {
         mouse_radius = 3.0;
     }
     let d_mouse_circle = sdCircle(input.position.xy - input.mouse_position, mouse_radius);
@@ -182,7 +182,7 @@ fn fs_main(
 
     pub struct StarMoon {
         pub size: f32,
-        pub mouse_click: Vector,
+        pub mouse_click: u32,
         pub duration_since_click: Duration,
         pub handle: shader::Handle,
     }
@@ -280,7 +280,7 @@ enum Message {
 struct Example {
     duration_since_last_click: Duration,
     tick_at_last_click: Instant,
-    mouse_click: Vector,
+    mouse_click: u32,
     #[allow(dead_code)]
     custom_shader_quad: custom_shader_quad::StarMoon,
 }
@@ -313,14 +313,14 @@ impl Application for Example {
             Self {
                 duration_since_last_click: Duration::default(),
                 tick_at_last_click: Instant::now(),
-                mouse_click: Vector::new(0.0, 0.0),
+                mouse_click: 0,
                 custom_shader_quad: custom_shader_quad::StarMoon {
                     size: 200.0,
-                    mouse_click: Vector::default(),
+                    mouse_click: 0,
                     duration_since_click: Duration::default(),
-                    // shader_content: Example::get_path().into(),
-                    handle: ShaderContent::Memory(custom_shader_quad::SHADER)
-                        .into(),
+                    handle: ShaderContent::Path(Example::get_path()).into(),
+                    // handle: ShaderContent::Memory(custom_shader_quad::SHADER)
+                    //     .into(),
                 },
             },
             Command::none(),
@@ -334,19 +334,19 @@ impl Application for Example {
     fn update(&mut self, message: Message) -> Command<Message> {
         match message {
             Message::RightMouseReleaseGeneral => {
-                self.mouse_click.y = 0.0;
+                self.mouse_click = 1;
             }
 
             Message::LeftMouseReleaseGeneral => {
-                self.mouse_click.x = 0.0;
+                self.mouse_click = 0;
             }
 
             Message::RightMousePressedGeneral => {
-                self.mouse_click.y = 1.0;
+                self.mouse_click = 2;
             }
 
             Message::LeftMousePressedGeneral => {
-                self.mouse_click.x = 1.0;
+                self.mouse_click = 0;
                 self.tick_at_last_click = Instant::now();
             }
 

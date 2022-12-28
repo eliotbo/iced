@@ -16,9 +16,12 @@ pub struct CustomShaderQuadWithHandle {
     /// Mouse position on the screen.
     pub mouse_position: [f32; 2],
 
-    /// Mouse click and release: [0.0] = no event, [1.0] = click, [-1.0] = release.
-    /// The first element is for left mouse click, the second for right mouse click.
-    pub mouse_click: [f32; 2],
+    /// Shader mouse click encoding logic:
+    /// 0 if no click and no hover.
+    /// 1 if left click over.
+    /// 2 if right click over.
+    /// 3 if hover.
+    pub mouse_click: u32,
 
     /// time in seconds since the start of the program.
     pub time: f32,
@@ -40,6 +43,7 @@ impl From<&CustomShaderQuadWithHandle> for CustomShaderQuad {
             mouse_click: custom_shader_quad.mouse_click,
             time: custom_shader_quad.time,
             frame: custom_shader_quad.frame,
+            dummy: 0,
         }
     }
 }
@@ -62,15 +66,21 @@ pub struct CustomShaderQuad {
     /// Mouse position on the screen.
     pub mouse_position: [f32; 2],
 
-    /// Mouse click and release: [0.0] = no event, [1.0] = click, [-1.0] = release.
-    /// The first element is for left mouse click, the second for right mouse click.
-    pub mouse_click: [f32; 2],
+    /// Shader mouse click encoding logic:
+    /// 0 if no click and no hover.
+    /// 1 if left click over.
+    /// 2 if right click over.
+    /// 3 if hover.
+    pub mouse_click: u32,
 
     /// time in seconds since the start of the program.
     pub time: f32,
 
     /// frame number since the start of the program.
     pub frame: u32,
+
+    /// dummy variable
+    pub dummy: u32,
 }
 
 #[allow(unsafe_code)]

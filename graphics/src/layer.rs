@@ -172,7 +172,7 @@ impl<'a> Layer<'a> {
                     },
 
                     mouse_position: [mouse_position.x, mouse_position.y],
-                    mouse_click: [mouse_click.x, mouse_click.y],
+                    mouse_click: *mouse_click,
                     time: *time,
                     frame: *frame,
                     handle: handle.clone(),

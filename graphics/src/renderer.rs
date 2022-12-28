@@ -129,10 +129,7 @@ where
                 custom_shader_quad.mouse_position.x,
                 custom_shader_quad.mouse_position.y,
             ),
-            mouse_click: Vector::new(
-                custom_shader_quad.mouse_click.x,
-                custom_shader_quad.mouse_click.y,
-            ),
+            mouse_click: custom_shader_quad.mouse_click,
             time: custom_shader_quad.time,
             frame: custom_shader_quad.frame_number,
             handle: custom_shader_quad.handle,

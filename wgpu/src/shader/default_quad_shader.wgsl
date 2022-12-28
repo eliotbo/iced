@@ -13,9 +13,10 @@ struct VertexInput {
 
 
     @location(4) mouse_position: vec2<f32>,
-    @location(5) mouse_click: vec2<f32>,
+    @location(5) mouse_click: u32,
     @location(6) time: f32,
     @location(7) frame: u32, // unused in this example
+    @location(8) dummy: u32,
 }
 
 struct VertexOutput {
@@ -24,7 +25,7 @@ struct VertexOutput {
     @location(1) pos: vec2<f32>,
     @location(2) size: vec2<f32>,
     @location(3) mouse_position: vec2<f32>,
-    @location(4) mouse_click: vec2<f32>,
+    @location(4) mouse_click: u32,
     @location(5) time: f32,
     @location(6) frame: u32,
 }

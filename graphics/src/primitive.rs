@@ -61,7 +61,7 @@ pub enum Primitive {
         mouse_position: Vector<f32>,
 
         /// The first element is for left mouse click, the second for right mouse click.
-        mouse_click: Vector<f32>,
+        mouse_click: u32,
 
         /// time in seconds since the start of the program.
         time: f32,

@@ -33,6 +33,7 @@ pub mod text_input;
 pub mod toggler;
 pub mod tooltip;
 pub mod tree;
+pub mod wgsl_shader_quad;
 
 mod action;
 mod id;
@@ -79,6 +80,8 @@ pub use toggler::Toggler;
 pub use tooltip::Tooltip;
 #[doc(no_inline)]
 pub use tree::Tree;
+#[doc(no_inline)]
+pub use wgsl_shader_quad::WgslShaderQuad;
 
 pub use action::Action;
 pub use id::Id;

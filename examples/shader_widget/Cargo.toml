@@ -1,5 +1,5 @@
 [package]
-name = "custom_shader_quad"
+name = "shader_widget"
 version = "0.1.0"
 authors = ["Eliot Bolduc"]
 edition = "2021"

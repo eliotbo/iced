@@ -76,7 +76,11 @@ pub struct CustomShaderQuad {
     pub mouse_position: Point,
 
     /// The first element is for left mouse click, the second for right mouse click.
-    pub mouse_click: Vector,
+    /// 0 if no click and no hover.
+    /// 1 if hover.
+    /// 2 if left click over.
+    /// 3 if right click over.
+    pub mouse_click: u32,
 
     /// time in seconds since the start of the program.
     pub time: f32,
